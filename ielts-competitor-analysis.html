@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雅思学习平台竞品分析</title>
+    <style>
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           =========================================== */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+        :root {
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+        }
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           SWISS MODERN STYLE - Modern, Minimal, Precise
+           =========================================== */
+        :root {
+            --primary: #1a1a2e;
+            --accent: #e94560;
+            --surface: #f8f9fa;
+            --surface-alt: #ffffff;
+            --text: #1a1a2e;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Slide backgrounds */
+        .slide {
+            background: var(--surface-alt);
+        }
+        .slide:nth-child(odd) {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* Title slide */
+        .slide-title {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+        }
+        .slide-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), #ff6b6b, #ffd93d);
+        }
+        .slide-title h1 {
+            font-size: var(--title-size);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0 0 var(--content-gap);
+        }
+        .slide-title .subtitle {
+            font-size: var(--h2-size);
+            font-weight: 300;
+            opacity: 0.9;
+            margin: 0;
+        }
+        .slide-title .date {
+            position: absolute;
+            bottom: var(--slide-padding);
+            font-size: var(--small-size);
+            opacity: 0.7;
+        }
+
+        /* Content slides */
+        h1, h2, h3 {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 0 0 var(--content-gap);
+        }
+        h1 { font-size: var(--title-size); }
+        h2 { font-size: var(--h2-size); color: var(--primary); }
+        h3 { font-size: var(--h3-size); color: var(--text); }
+
+        /* Cards grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--content-gap);
+            margin-top: var(--content-gap);
+        }
+        @media (max-width: 768px) {
+            .card-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: var(--content-gap);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent), #ff6b6b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--element-gap);
+            font-size: 1.5rem;
+        }
+        .card h3 {
+            font-size: var(--h3-size);
+            margin-bottom: var(--element-gap);
+        }
+        .card p {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Bullet lists */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .bullet-list li {
+            position: relative;
+            padding-left: 1.5em;
+            margin-bottom: var(--element-gap);
+        }
+        .bullet-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5em;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Two column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--content-gap);
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        /* Comparison table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--content-gap);
+            font-size: var(--body-size);
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: var(--element-gap);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: var(--surface);
+        }
+        .comparison-table .check {
+            color: var(--success);
+            font-weight: bold;
+        }
+        .comparison-table .cross {
+            color: var(--accent);
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25em 0.75em;
+            border-radius: 20px;
+            font-size: var(--small-size);
+            font-weight: 500;
+        }
+        .tag-success { background: #d4edda; color: #155724; }
+        .tag-warning { background: #fff3cd; color: #856404; }
+        .tag-danger { background: #f8d7da; color: #721c24; }
+        .tag-info { background: #d1ecf1; color: #0c5460; }
+
+        /* Highlight box */
+        .highlight-box {
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: var(--content-gap);
+            border-radius: 0 8px 8px 0;
+            margin: var(--content-gap) 0;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--content-gap);
+            padding-bottom: var(--content-gap);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .timeline-date {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            margin-bottom: 0.25em;
+        }
+
+        /* Navigation */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Animations */
+        .slide .slide-content > * {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: reveal 0.6s ease forwards;
+        }
+        .slide:nth-child(1) .slide-content > * { animation-delay: 0.1s; }
+        .slide:nth-child(2) .slide-content > * { animation-delay: 0.15s; }
+        .slide:nth-child(3) .slide-content > * { animation-delay: 0.2s; }
+        .slide:nth-child(4) .slide-content > * { animation-delay: 0.25s; }
+        .slide:nth-child(5) .slide-content > * { animation-delay: 0.3s; }
+        .slide:nth-child(6) .slide-content > * { animation-delay: 0.35s; }
+        .slide:nth-child(7) .slide-content > * { animation-delay: 0.4s; }
+        .slide:nth-child(8) .slide-content > * { animation-delay: 0.45s; }
+        .slide:nth-child(9) .slide-content > * { animation-delay: 0.5s; }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Editable styles */
+        [contenteditable] {
+            outline: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        [contenteditable]:hover {
+            background: rgba(233, 69, 96, 0.05);
+        }
+        [contenteditable]:focus {
+            background: rgba(233, 69, 96, 0.1);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        /* Export button */
+        .export-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: var(--small-size);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .export-btn:hover {
+            background: var(--accent);
+        }
+
+        /* Slide counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <button class="export-btn" onclick="exportSlides()">导出 HTML</button>
+    <div class="nav-dots" id="navDots"></div>
+    <div class="keyboard-hint">使用 ↑↓ 键或滚轮切换页面</div>
+    <div class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">9</span></div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide-title" id="slide-1">
+        <div class="slide-content">
+            <h1 contenteditable="true">雅思学习平台竞品分析</h1>
+            <p class="subtitle" contenteditable="true">市场格局与差异化洞察</p>
+            <p class="date" contenteditable="true">2026年3月</p>
+        </div>
+    </section>
+
+    <!-- Slide 2: Market Overview -->
+    <section class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2 contenteditable="true">市场概览</h2>
+            <div class="two-col">
+                <div>
+                    <h3 contenteditable="true">市场规模</h3>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>中国雅思培训市场规模约 <strong>300亿元</strong></li>
+                        <li>年均考生数量超过 <strong>70万人</strong></li>
+                        <li>线上学习渗透率持续提升</li>
+                        <li>疫情后市场快速恢复增长</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 contenteditable="true">用户画像</h3>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>主要群体：18-30岁在校大学生</li>
+                        <li>备考周期：3-6个月为主</li>
+                        <li>学习形式：线上+线下混合</li>
+                        <li>付费意愿：中等至高</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Competitor Overview -->
+    <section class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2 contenteditable="true">竞品全景图</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📚</div>
+                    <h3 contenteditable="true">新东方在线</h3>
+                    <p contenteditable="true">老牌机构，师资力量强，线下门店覆盖广，品牌知名度高</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌍</div>
+                    <h3 contenteditable="true">环球雅思</h3>
+                    <p contenteditable="true">专注雅思培训，课程体系成熟，海外考试经验丰富</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📖</div>
+                    <h3 contenteditable="true">剑桥雅思</h3>
+                    <p contenteditable="true">官方教材权威，内容原汁原味，学术性强</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h3 contenteditable="true">趴趴英语</h3>
+                    <p contenteditable="true">互联网新势力，AI智能学习，社交化学习社区</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3 contenteditable="true">羊驼雅思</h3>
+                    <p contenteditable="true">AI评分系统，智能定制学习路径，性价比高</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <h3 contenteditable="true">学为贵</h3>
+                    <p contenteditable="true">真经体系，名师IP化，线上直播课程突出</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Feature Comparison -->
+    <section class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2 contenteditable="true">产品功能对比</h2>
+            <table class="comparison-table" contenteditable="true">
+                <thead>
+                    <tr>
+                        <th>功能模块</th>
+                        <th>新东方</th>
+                        <th>环球</th>
+                        <th>趴趴</th>
+                        <th>羊驼</th>
+                        <th>学为贵</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AI 口语陪练</td>
+                        <td class="cross">✗</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                    </tr>
+                    <tr>
+                        <td>智能写作批改</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                    </tr>
+                    <tr>
+                        <td>个性化学习计划</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                    </tr>
+                    <tr>
+                        <td>真题题库</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>名师直播课</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>学习社群</td>
+                        <td class="cross">✗</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Slide 5: UX Comparison -->
+    <section class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2 contenteditable="true">用户体验与界面</h2>
+            <div class="two-col">
+                <div>
+                    <h3 contenteditable="true">界面设计风格</h3>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li><strong>新东方：</strong>传统稳重，色彩偏深，导航清晰</li>
+                        <li><strong>环球雅思：</strong>商务风格，信息密度高</li>
+                        <li><strong>趴趴英语：</strong>年轻化设计，色彩活泼，交互流畅</li>
+                        <li><strong>羊驼雅思：</strong>简洁现代，扁平化设计</li>
+                        <li><strong>学为贵：</strong>名师IP元素多，视觉冲击力强</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 contenteditable="true">用户评价要点</h3>
+                    <div class="highlight-box" contenteditable="true">
+                        <strong>优点：</strong><br>
+                        趴趴英语 - 交互体验好，AI功能实用<br>
+                        羊驼 - 性价比高，学习路径清晰
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <strong>待改进：</strong><br>
+                        新东方 - 线上体验不如线下<br>
+                        环球 - 课程价格偏高
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Pricing -->
+    <section class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2 contenteditable="true">定价策略</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3 contenteditable="true">新东方在线</h3>
+                    <p contenteditable="true"><span class="tag tag-warning">中等偏高</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>全程班：¥5000-8000</li>
+                        <li>一对一：¥300-500/时</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 contenteditable="true">环球雅思</h3>
+                    <p contenteditable="true"><span class="tag tag-warning">中等偏高</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>精品小班：¥6000-10000</li>
+                        <li>一对一：¥400-600/时</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 contenteditable="true">趴趴英语</h3>
+                    <p contenteditable="true"><span class="tag tag-success">性价比高</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>会员订阅：¥99-199/月</li>
+                        <li>AI 功能单独付费</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 contenteditable="true">羊驼雅思</h3>
+                    <p contenteditable="true"><span class="tag tag-success">性价比高</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>全科班：¥2000-4000</li>
+                        <li>单科：¥500-1000</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 contenteditable="true">学为贵</h3>
+                    <p contenteditable="true"><span class="tag tag-info">中等</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>直播班课：¥3000-6000</li>
+                        <li>录播课：¥1000-2000</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 contenteditable="true">免费资源</h3>
+                    <p contenteditable="true"><span class="tag tag-info">引流入口</span></p>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>各平台均有免费公开课</li>
+                        <li>剑桥官方提供部分真题</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Latest Updates -->
+    <section class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2 contenteditable="true">最新竞品动态</h2>
+            <div class="two-col">
+                <div class="timeline">
+                    <h3 contenteditable="true">2025-2026 重要更新</h3>
+                    <div class="timeline-item" contenteditable="true">
+                        <div class="timeline-date">2026年1月</div>
+                        <strong>趴趴英语</strong> - 推出 AI 口语教练 2.0，支持实时对话纠错
+                    </div>
+                    <div class="timeline-item" contenteditable="true">
+                        <div class="timeline-date">2025年12月</div>
+                        <strong>羊驼雅思</strong> - 获得融资，估值超 10 亿
+                    </div>
+                    <div class="timeline-item" contenteditable="true">
+                        <div class="timeline-date">2025年11月</div>
+                        <strong>学为贵</strong> - 名师直播 IP 化，推出私域会员体系
+                    </div>
+                    <div class="timeline-item" contenteditable="true">
+                        <div class="timeline-date">2025年10月</div>
+                        <strong>新东方</strong> - 升级智能学习系统，引入 AI 批改
+                    </div>
+                </div>
+                <div>
+                    <h3 contenteditable="true">市场趋势</h3>
+                    <div class="highlight-box" contenteditable="true">
+                        <strong>AI 赋能</strong><br>
+                        各平台竞相布局 AI 功能，智能化成为核心竞争力
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <strong>社交化学习</strong><br>
+                        社区+陪伴式学习提升用户粘性
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <strong>订阅制转型</strong><br>
+                        从课程销售向订阅服务转变
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Differentiated Analysis -->
+    <section class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2 contenteditable="true">差异化分析</h2>
+            <div class="two-col">
+                <div>
+                    <h3 contenteditable="true">竞争优势</h3>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-success">AI 技术领先</span><br>
+                        <p>自研 AI 口语评测引擎，准确率行业领先</p>
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-success">用户体验</span><br>
+                        <p>移动端体验流畅，交互设计现代</p>
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-success">数据驱动</span><br>
+                        <p>基于学习数据的个性化推荐系统</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 contenteditable="true">待提升领域</h3>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-danger">品牌认知</span><br>
+                        <p>作为新兴品牌，知名度不及传统机构</p>
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-warning">师资储备</span><br>
+                        <p>名师资源相对有限，需加强引进</p>
+                    </div>
+                    <div class="highlight-box" contenteditable="true">
+                        <span class="tag tag-warning">线下渠道</span><br>
+                        <p>线下体验店布局不足</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Summary -->
+    <section class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2 contenteditable="true">总结与建议</h2>
+            <div class="two-col">
+                <div>
+                    <h3 contenteditable="true">关键发现</h3>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li>市场分散，头部玩家优势明显</li>
+                        <li>AI 功能成为差异化关键点</li>
+                        <li>年轻用户偏好互联网产品</li>
+                        <li>价格敏感度中等，品牌信任度重要</li>
+                        <li>内容质量仍是核心竞争力</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 contenteditable="true">战略建议</h3>
+                    <ul class="bullet-list" contenteditable="true">
+                        <li><strong>深耕 AI 优势</strong> - 持续投入技术研发，保持领先</li>
+                        <li><strong>强化内容壁垒</strong> - 与名师合作，打造精品课程</li>
+                        <li><strong>拓展线下体验</strong> - 一线城市布局体验中心</li>
+                        <li><strong>精细化运营</strong> - 提升转化率和用户留存</li>
+                        <li><strong>品牌建设</strong> - 增加市场投入，提升知名度</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="text-align: center; margin-top: var(--content-gap);" contenteditable="true">
+                <strong>目标：</strong>在未来 2 年内进入雅思在线教育第一梯队
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots
+        const totalSlides = document.querySelectorAll('.slide').length;
+        const navDots = document.getElementById('navDots');
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => {
+                document.getElementById(`slide-${i + 1}`).scrollIntoView({ behavior: 'smooth' });
+            };
+            navDots.appendChild(dot);
+        }
+
+        // Update active dot on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const slideNum = entry.target.id.split('-')[1];
+                    document.getElementById('currentSlide').textContent = slideNum;
+                    document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                        dot.classList.toggle('active', i === slideNum - 1);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.slide').forEach(slide => observer.observe(slide));
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const current = parseInt(document.getElementById('currentSlide').textContent);
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (current < totalSlides) {
+                    document.getElementById(`slide-${current + 1}`).scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (current > 1) {
+                    document.getElementById(`slide-${current - 1}`).scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Inline editing with localStorage
+        const editableElements = document.querySelectorAll('[contenteditable]');
+        const STORAGE_KEY = 'ielts-competitor-analysis';
+
+        // Load saved content
+        function loadContent() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                editableElements.forEach(el => {
+                    const key = el.id || el.parentElement?.id || Math.random().toString(36);
+                    if (data[key]) {
+                        el.innerHTML = data[key];
+                    }
+                });
+            }
+        }
+
+        // Save content
+        function saveContent() {
+            const data = {};
+            editableElements.forEach((el, i) => {
+                const key = el.id || `el-${i}`;
+                data[key] = el.innerHTML;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // Auto-save on blur
+        editableElements.forEach(el => {
+            el.addEventListener('blur', saveContent);
+        });
+
+        // Initial load
+        loadContent();
+
+        // Export function
+        function exportSlides() {
+            saveContent();
+            const html = document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ielts-competitor-analysis.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Clear storage hint
+        if (!localStorage.getItem(STORAGE_KEY)) {
+            console.log('提示：编辑内容会自动保存到浏览器本地存储');
+        }
+    </script>
+</body>
+</html>
